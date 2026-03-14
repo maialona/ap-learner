@@ -44,6 +44,11 @@ export async function extractQuestions(rawText: string) {
       create: { name: q.category },
     });
 
+    const existing = await prisma.question.findFirst({
+      where: { content: q.content },
+    });
+    if (existing) continue;
+
     const question = await prisma.question.create({
       data: {
         content: q.content,
@@ -466,6 +471,11 @@ export async function saveGeneratedQuestions(questions: GeneratedQuestion[]) {
       update: {},
       create: { name: q.category },
     });
+
+    const existing = await prisma.question.findFirst({
+      where: { content: q.content },
+    });
+    if (existing) continue;
 
     const question = await prisma.question.create({
       data: {
