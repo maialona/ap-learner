@@ -19,6 +19,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "A&P 知識萃取系統",
   description: "解剖生理學考題知識萃取與複習系統",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "A&P",
+  },
+  icons: {
+    apple: "/icon-192x192.png",
+  },
 };
 
 export default function RootLayout({
