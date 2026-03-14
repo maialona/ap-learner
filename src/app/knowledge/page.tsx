@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
-import { getCategories, getQuestionsByCategory, searchQuestions, getAllTags, getQuestionsByTag } from "@/lib/actions";
+import { getCategories, getQuestionsByCategory, searchQuestions, getAllTags, getQuestionsByTag, getAllQuestions } from "@/lib/actions";
 import { QuestionCard } from "@/components/QuestionCard";
 import { SearchBar } from "@/components/SearchBar";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,7 @@ export default async function KnowledgePage({ searchParams }: Props) {
       ? await getQuestionsByTag(params.tag)
       : params.category
         ? await getQuestionsByCategory(params.category)
-        : [];
+        : await getAllQuestions();
 
   const selectedCategory = categories.find((c) => c.id === params.category);
 
@@ -117,13 +117,9 @@ export default async function KnowledgePage({ searchParams }: Props) {
           ))}
         </div>
       ) : (
-        !params.q &&
-        !params.category &&
-        !params.tag && (
-          <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-            <p>請選擇一個分類或搜尋關鍵字</p>
-          </div>
-        )
+        <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+          <p>{params.q ? `搜尋「${params.q}」無結果` : "此分類尚無題目"}</p>
+        </div>
       )}
     </div>
   );
