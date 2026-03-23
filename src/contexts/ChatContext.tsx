@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 export interface QuestionContext {
   questionId?: string;
@@ -35,10 +35,53 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [questionContext, setQuestionContext] = useState<QuestionContext | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem("anatomy-ai-chat-messages");
+      if (savedMessages) setMessages(JSON.parse(savedMessages));
+      
+      const savedContext = localStorage.getItem("anatomy-ai-chat-context");
+      if (savedContext) setQuestionContext(JSON.parse(savedContext));
+    } catch (error) {
+      console.error("Failed to load chat history:", error);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      localStorage.setItem("anatomy-ai-chat-messages", JSON.stringify(messages));
+    } catch (error) {
+      console.error("Failed to save chat messages:", error);
+    }
+  }, [messages, isInitialized]);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      if (questionContext) {
+        localStorage.setItem("anatomy-ai-chat-context", JSON.stringify(questionContext));
+      } else {
+        localStorage.removeItem("anatomy-ai-chat-context");
+      }
+    } catch (error) {
+      console.error("Failed to save chat context:", error);
+    }
+  }, [questionContext, isInitialized]);
 
   const openChat = useCallback((context?: QuestionContext) => {
-    setQuestionContext(context ?? null);
-    setMessages([]);
+    setQuestionContext((prev) => {
+      if (context) {
+        if (prev?.questionId !== context.questionId) {
+          setMessages([]);
+        }
+        return context;
+      }
+      return prev;
+    });
     setIsOpen(true);
   }, []);
 
